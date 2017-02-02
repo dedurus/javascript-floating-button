@@ -1,19 +1,20 @@
-var FloatingBtn = function () {
+var floatingBtn = function () {
     'use strict';
 
     // Default configuration
     var config = {
-        'button_id': 'floating-btn', // button ID
-        'location': 'bottom-right', // or 'bottom-left', 'middle-right', 'middle-left'
-        'bg_color': '#e62e00', // background color (hexadecimal value or CSS named color, e.g. 'yellow')
+        'button_id' : 'floating-btn', // button ID
+        'location'  : 'bottom-right', // or 'bottom-left', 'middle-right', 'middle-left'
+        'bg_color'  : '#e62e00', // background color (hexadecimal value or CSS named color, e.g. 'yellow')
         'text_color': '#FFFFFF', // color of the button text (hexadecimal value or CSS named color, e.g. 'yellow')
-        'text'    : 'Feedback',
-        'url'    : 'http://engramweb.com',
-        'corners' : {
-            type: 'rounded', // or 'square'
+        'text'      : 'Feedback',
+        'url'       : 'http://engramweb.com',
+        'corners'   : {
+            type         : 'rounded', // or 'square'
             border_radius: '5px' // default border radius in pixels
         },
-        'visible' : 'slide_in',  // 'always' or 'slide_in',
+        'visible'   : 'slide_in',  // 'always' or 'slide_in'
+        delay: 2500, // The animation start delay in miliseconds. Only used when `visible` is set to 'slide_in`
     }
 
 
@@ -23,6 +24,23 @@ var FloatingBtn = function () {
         'padding'         : '10px 20px',
         'color'           : '#fff',
         'position'        : 'fixed',
+        'margin'          : '10px'
+    }
+
+    // get width of the button including left and right margins
+    var _getAbsoluteWidth = function (btn) {
+        var btn_styles = window.getComputedStyle(btn);
+        var margin = parseFloat(btn_styles['marginLeft']) + parseFloat(btn_styles['marginRight']);
+
+        return btn.offsetWidth + margin;
+    }
+
+    // get height of the button including margins
+    var _getAbsoluteHeight = function (btn) {
+        var btn_styles = window.getComputedStyle(btn);
+        var margin = parseFloat(btn_styles['marginTop']) + parseFloat(btn_styles['marginBottom']);
+
+        return btn.offsetHeight + margin;
     }
 
 
@@ -32,19 +50,23 @@ var FloatingBtn = function () {
                 styles.bottom = 0;
                 styles.left = 0;
                 break;
+
             case 'bottom-right':
                 styles.bottom = 0;
                 styles.right = 0;
                 break;
+
             case 'middle-left':
                 styles.left = 0;
                 styles.top = '50%';
                 break;
+
             case 'middle-right':
                 styles.right = 0;
                 styles.top = '50%';
                 break;
             default:
+                break;
 
         }
     }
@@ -53,31 +75,35 @@ var FloatingBtn = function () {
     var _transition = function(config){
         var location = config.location,
             btn = document.getElementById(config.button_id),
-            width = btn.offsetWidth,
-            height = btn.offsetHeight;
+            width = _getAbsoluteWidth(btn),
+            height = _getAbsoluteHeight(btn);
+
         switch(location){
             case 'bottom-right':
-                move_box(btn, -width, -height, 2000);
+            case 'middle-right':
+                _move_box(btn, width, 0, config.delay);
                 break;
+
             case 'bottom-left':
-                styles['transition'] = 'all .5s ease-out';
-                styles['transform'] = 'translate(50px, 100px)';
+            case 'middle-left':
+                _move_box(btn, -width, 0, config.delay);
                 break;
             default:
+                break;
         }
     }
 
-    // initial animation CSS
-    function set_transition(btn) {
-         btn.style["-webkit-transition"] = "all .5s ease-out";
-         btn.style["-moz-transition"] = "all .5s ease-out";
-         btn.style["-ms-transition"] = "all .5s ease-out";
-         btn.style["-o-transition"] = "all .5s ease-out";
-         btn.style["transition"] = "all .5s ease-out";
+    // initial transition CSS
+    var _set_transition = function(btn) {
+         btn.style["-webkit-transition"] = "all 0.5s ease-out";
+         btn.style["-moz-transition"] = "all 0.5s ease-out";
+         btn.style["-ms-transition"] = "all 0.5s ease-out";
+         btn.style["-o-transition"] = "all 0.5s ease-out";
+         btn.style["transition"] = "all 0.5s ease-out";
 
     }
 
-   function set_translate(btn, horizontal, vertical) {
+    var _set_translate = function(btn, horizontal, vertical) {
         btn.style["-webkit-transform"] = "translate(" + horizontal + "px, "+ vertical +"px)";
         btn.style["-moz-transform"] = "translate(" + horizontal + "px, -" + vertical +"px)";
         btn.style["-ms-transform"] = "translate(" + horizontal + "px, -" + vertical + "px)";
@@ -85,17 +111,20 @@ var FloatingBtn = function () {
         btn.style["transform"] = "translate(" + horizontal + "px, -" + vertical + "px)";
     }
 
-    function move_box(btn, horizontal, vertical, animation_time) {
-        set_transition(btn);
+    var _move_box = function(btn, horizontal, vertical, delay) {
+        _set_transition(btn);
         setTimeout(function(){
-            set_translate(btn, horizontal, vertical);
+            _set_translate(btn, horizontal, vertical);
         },
-        animation_time);
+        delay);
     }
-
-
-
     // ----------- ./transition effects ----------------
+
+    // --- onScroll animation
+    var onScrollAnim = function(config){
+
+    }
+    // ---
 
     var _bg_color = function(bg_color){
         styles['background-color'] = bg_color;
@@ -120,10 +149,6 @@ var FloatingBtn = function () {
         config.text = text;
     }
 
-    var _url = function(url){
-        config.url = url;
-    }
-
 
 
 
@@ -140,7 +165,6 @@ var FloatingBtn = function () {
         _text_color(config.text_color);
         _corners(config.corners);
         _btn_text(config.text);
-        _url(config.url);
         generate_button(config);
 
         _location(config.location);
@@ -183,10 +207,6 @@ var FloatingBtn = function () {
    function append_btn(btn, config){
         // append button to document
         document.body.appendChild(btn);
-
-        //slide-in or fixed
-       // _animation(config.visible, config);
-
    }
 
    return {
@@ -194,8 +214,8 @@ var FloatingBtn = function () {
    };
 }();
 
-FloatingBtn.init({
-    'location': 'bottom-right',
+floatingBtn.init({
+    'location': 'bottom-left',
     'bg_color': 'blue',
     'text_color': 'violet',
     'corners': {
@@ -204,5 +224,6 @@ FloatingBtn.init({
     },
     'text': 'tralala',
     'url': 'http://facebook.com',
-    'visible': 'always'
+    'visible': 'always',
+    delay: 5000
 })
