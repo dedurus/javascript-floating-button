@@ -13,7 +13,7 @@ var floatingBtn = function () {
             type         : 'rounded', // or 'square'
             border_radius: '5px' // default border radius in pixels
         },
-        'visible'   : 'slide_in',  // 'always' or 'slide_in'
+        'visible'   : 'slide_in',  // 'slide_in' for hiding the button when the window is scrolled. 'always' keeps the button in viewport
         delay: 2500, // The animation start delay in miliseconds. Only used when `visible` is set to 'slide_in`
     }
 
@@ -220,7 +220,6 @@ floatingBtn.init({
     'text_color': 'violet',
     'corners': {
         type:'rounded',
-        border_radius: '5px'
     },
     'text': 'tralala',
     'url': 'http://facebook.com',
